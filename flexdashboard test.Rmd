@@ -58,7 +58,7 @@ dat <- dat[[1]]
 
 stop_time <- Sys.time()
 run_time <- stop_time - start_time
-run_time
+
 
 #rename variables
 dat1<- dat %>% 
