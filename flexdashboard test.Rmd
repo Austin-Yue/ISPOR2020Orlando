@@ -1,16 +1,16 @@
 ---
-title: "shiny test"
+title: "flexdashboard test"
 author: "Austin YUE"
 date: "1/4/2020"
-output: 
+output:
+  html_document:
+    df_print: paged
   flexdashboard::flex_dashboard:
-    orientation: row
-    source_code: embed
-runtime: shiny
+    orientation: columns
+    vertical_layout: fill
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(collapse = TRUE)
 library(flexdashboard)
 library(tidyverse)
 library(rvest)
@@ -35,7 +35,7 @@ library(rmarkdown)
 ```
 
 
-```{r load the data, include=FALSE }
+```{r load the data, echo = FALSE }
 start_time <- Sys.time()
 
 con <- dbConnect(odbc::odbc(), driver = "MySQL ODBC 5.3 ANSI Driver", 
@@ -129,37 +129,17 @@ dat3 <- dat2 %>% pivot_longer(., depressed_mood:eating, names_to = 'symptoms', v
 
 ```
 
-Column {.sidebar}
+Column {data-width=650}
 -----------------------------------------------------------------------
 
-```{r, include=FALSE}
-number <- dat3 %>% 
-  distinct(sym_num) %>% 
-  pull()
-
-# selectInput widget
-selectInput("symptoms_number", label = h3("Select the number of relative symptoms the patient has"),
-            choices = number, selected = "1")
-```
-
-
-Row
------------------------------------------------------------------------
 
 ### The frequency for symptoms
 
-```{r, include=FALSE}
+```{r, echo = FALSE}
 dat3 %>% 
-  filter(sym_num == input$symptoms_number) %>% 
   filter(sym_status == 1) %>% 
   count(symptoms, sort = TRUE) %>% 
   mutate(symptoms = fct_reorder(symptoms, n)) %>% 
   plot_ly(x = ~ symptoms, y = ~n, type = "bar", color = ~ symptoms)
-```
-
-
-```{r, include=FALSE}
-## update on shiny
-#rsconnect::deployApp('C:/Users/YueLe/OneDrive - Kantar/ISPOR/ISPOR2020Orlando')
 ```
 

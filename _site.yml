@@ -5,8 +5,8 @@ navbar:
   right:
     - text: "About"
       href: about.html
-    - text: "Test"
-      href: test.html
+    - text: "flexdashboard"
+      href: flexdashboard-test.html
     - icon: fa-envelope fa-lg
       href: mailto:<Austin.Yue@kantar.com>
     - icon: fa-github fa-lg
