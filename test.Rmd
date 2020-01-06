@@ -1,16 +1,14 @@
 ---
-title: "shiny test"
+title: "shiny dashboard"
 author: "Austin YUE"
 date: "1/4/2020"
-output: 
+output:
   flexdashboard::flex_dashboard:
     orientation: row
-    source_code: embed
 runtime: shiny
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(collapse = TRUE)
 library(flexdashboard)
 library(tidyverse)
 library(rvest)
@@ -125,18 +123,20 @@ dat2 <- dat1 %>%
   mutate(sym_num = depressed_mood + eating + sleep + mental + social + physical)
   
 #long data
-dat3 <- dat2 %>% pivot_longer(., depressed_mood:eating, names_to = 'symptoms', values_to = 'sym_status')
+dat3 <- dat2 %>% pivot_longer(., depressed_mood:eating, names_to = 'symptoms', values_to = 'sym_status') %>% filter(sym_num %in% c(1,2,3))
 
 ```
 
 Column {.sidebar}
 -----------------------------------------------------------------------
 
-```{r, include=FALSE}
+```{r, echo = FALSE}
 number <- dat3 %>% 
   distinct(sym_num) %>% 
   pull()
 
+
+number <- c(1:3)
 # selectInput widget
 selectInput("symptoms_number", label = h3("Select the number of relative symptoms the patient has"),
             choices = number, selected = "1")
@@ -148,13 +148,16 @@ Row
 
 ### The frequency for symptoms
 
-```{r, include=FALSE}
+```{r, echo = FALSE}
+renderPlotly({
 dat3 %>% 
   filter(sym_num == input$symptoms_number) %>% 
   filter(sym_status == 1) %>% 
   count(symptoms, sort = TRUE) %>% 
   mutate(symptoms = fct_reorder(symptoms, n)) %>% 
   plot_ly(x = ~ symptoms, y = ~n, type = "bar", color = ~ symptoms)
+  
+})
 ```
 
 
