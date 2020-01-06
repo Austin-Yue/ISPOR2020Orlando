@@ -146,7 +146,7 @@ dat4 %>%
 
 
 ### test significance
-```{r}
+```{r, warning=FALSE, echo=FALSE}
 df <- dat4 %>% 
   count(drug, sort = TRUE) %>% 
   mutate(drug = as.factor(drug)) %>% 
