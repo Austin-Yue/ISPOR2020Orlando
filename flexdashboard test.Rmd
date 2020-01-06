@@ -40,124 +40,45 @@ library(reshape2)
 ```{r load the data, echo = FALSE }
 
 load.Rdata( filename="2020ISPOR_Orlando_depression.RData", "dat" )
-
-
-#rename variables
-dat1<- dat %>% 
-  dplyr::rename(diagnosis = DPDX,
-                rx = DPRX,
-                abilify =  DPRXAB,
-                amitriptyline =  DPRXAM,
-                aplenzin =  DPRXAP,
-                brintellix =  DPRXBNX,
-                bupropion_hcl =  DPRXBRN,
-                bupropion_hcl_sr =  DPRXBRS,
-                bupropion_xl =  DPRXBRX,
-                celexa =  DPRXCX,
-                citalopram =  DPRXCT,
-                clomipramine_hcl =  DPRXCME,
-                cymbalta =  DPRXCY,
-                duloxetine =  DPRXDU,
-                duloxetine_hcl =  DPRXDXE,
-                effexor_xr =  DPRXFX,
-                elavil =  DPRXEV,
-                emsam =  DPRXES,
-                escitalopram_oxalate =  DPRXELM,
-                fetzima =  DPRXFZA,
-                fluoxetine =  DPRXFL,
-                fluvoxamine_maleate =  DPRXFLU,
-                lamictal =  DPRXLI,
-                lexapro =  DPRXLX,
-                oleptro =  DPRXOPO,
-                paroxetine =  DPRXPT,
-                paxil =  DPRXPX,
-                paxil_cr =  DPRXPC,
-                pexeva =  DPRXPXV,
-                pristiq =  DPRXPQ,
-                prozac =  DPRXPZ,
-                remeron =  DPRXRM,
-                seroquel =  DPRXSQ,
-                seroquel_xr =  DPRXSX,
-                sertraline =  DPRXSL,
-                symbyax =  DPRXSY,
-                trazodone =  DPRXTZ,
-                venlafaxine =  DPRXVE,
-                venlafaxine_hcl_er =  DPRXVEX,
-                viibryd_ =  DPRXVI,
-                wellbutrin =  DPRXWL,
-                wellbutrin_xl =  DPRXWLX,
-                zoloft =  DPRXZL,
-                zyprexa =  DPRXZY,
-                rexulti =  DPRXREX,
-                savella =  DPRXSA,
-                other =  DPRXOT,
-                abilify_mycite =  DPRXAT,
-                desvenlafaxine =  DPRXDV,
-                quetiapine_fumarate =  DPRXQF,
-                depressed_mood = DPSYAX,
-                eating         = DPSYWG,
-                sleep          = DPSYSD,
-                mental         = DPSYMC,
-                social         = DPSYSP,
-                physical       = DPSYPN) %>% 
-  select(- DPSY_MAR_S1 , - DPSY_ORALFRQ, - DPSYNON)
-
-#create 'number of symptoms' variable|wide data
-dat2 <- dat1 %>% 
-  mutate(sym_num = depressed_mood + eating + sleep + mental + social + physical)
-  
-#long data for symtoms
-dat3 <- dat2 %>% pivot_longer(., depressed_mood:eating, names_to = 'symptoms', values_to = 'sym_status') %>% filter(sym_status == 1)
-
-#long data for drug brands
-dat4 <- dat2 %>% pivot_longer(., abilify:zyprexa, names_to = 'drug', values_to = 'drug_status') %>% filter(drug_status == 1)
+dat<- dat %>%  select(- DPRXEVR, -DPRXPYR)
 
 ```
-
-Column {data-width=650}
------------------------------------------------------------------------
-
-
-### The frequency for symptoms
-
-```{r, echo = FALSE}
-dat3 %>%
-  count(symptoms, sort = TRUE) %>% 
-  mutate(symptoms = fct_reorder(symptoms, n)) %>% 
-  plot_ly(x = ~ symptoms, y = ~n, type = "bar", color = ~ symptoms)
-```
-
-
 
 
 Column {data-width=350}
 -----------------------------------------------------------------------
 
-### The frequency for drug brands
+### The frequency for drug brands in use
 
+```{r, echo=FALSE, warning=FALSE}
+#long data for drug brands
+dat1 <- dat %>% pivot_longer(., abilify:zyprexa, names_to = 'drug', values_to = 'drug_status') %>%
+  filter(drug_status == 1) %>% 
+  select(-drug_status)
 
-```{r, echo=FALSE}
-dat4 %>% 
+dat1 %>% 
   count(drug, sort = TRUE) %>% 
   head(10) %>% 
   mutate(drug = fct_reorder(drug, n)) %>% 
   plot_ly(x = ~ drug, y = ~n, type = "bar", color = ~ drug)
 ```
+Column {data-width=350}
+-----------------------------------------------------------------------
+
+### The frequency table of adherence scales for the drug brands above
+
+```{r}
+drug_names <- dat1 %>% count(drug, sort = TRUE) %>% head(10) %>% pull(drug)
 
 
-### test significance
+```
+
+
+Column {data-width=350}
+-----------------------------------------------------------------------
+
+### Chisq test: the mean adherence time depending on drug classes. 
 ```{r, warning=FALSE, echo=FALSE}
-df <- dat4 %>% 
-  count(drug, sort = TRUE) %>% 
-  mutate(drug = as.factor(drug)) %>% 
-  head(10)
 
-rownames(df) <- df$drug
-
-df <- df%>%
-      as.data.frame()
-
-Xsq <- chisq.test(df[-1])
-Xsq
 ```
 
